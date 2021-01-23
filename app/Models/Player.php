@@ -10,6 +10,8 @@ class Player extends Model
 {
     use HasFactory;
 
+    protected $guarded = [];
+
     public function game() : BelongsTo
     {
         return $this->belongsTo(Game::class);
