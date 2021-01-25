@@ -53,8 +53,41 @@ class Game extends Model
         $this->rounds()->createMany($rounds);
 
         $this->players->each(fn ($player) => $player->update(['alias' => $this->uniqueAlias()]));
+        $this->randomlyAssignTeams();
+
         $this->save();
 
         return redirect()->route('littlefinger.games.show', $this);
+    }
+
+    public function randomlyAssignTeams()
+    {
+        $initial_rounds = $this->rounds()->take(2)->get();
+
+        $red = Team::create(['name' => 'Red', 'color' => 'red-700']);
+        $blue = Team::create(['name' => 'Blue', 'color' => 'blue-700']);
+
+        $initial_rounds->each(function ($round) use ($red, $blue) {
+            $round->teams()->sync([$red->id, $blue->id]);
+        });
+
+        $randomized_players = $this->players()->inRandomOrder()->get();
+        $cutoff = floor($randomized_players->count() / 2);
+
+        $red_team_players = $randomized_players->slice(0, $cutoff);
+        $blue_team_players = $randomized_players->slice($cutoff);
+
+        $red->players()->sync($red_team_players);
+        $blue->players()->sync($blue_team_players);
+    }
+
+    public function currentRound()
+    {
+        return $this->rounds()->started(true)->orderByDesc('round_number')->first();
+    }
+
+    public function nextRound()
+    {
+        return $this->rounds()->started(false)->first();
     }
 }

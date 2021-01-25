@@ -16,6 +16,7 @@ class CreateRoundsTable extends Migration
             $table->boolean('allows_advantages');
             $table->boolean('tribe_swap');
             $table->dateTime('starts_at');
+            $table->boolean('started')->default(false); // This can probably go away in favor of checking starts_at
             $table->timestamps();
         });
     }

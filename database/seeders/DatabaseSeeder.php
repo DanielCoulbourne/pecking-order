@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
             ]);
         });
 
+        $game->start();
         dump(route('littlefinger.games.setup', $game));
     }
 }
