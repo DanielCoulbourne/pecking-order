@@ -13,7 +13,15 @@ class Round extends Model
     use HasFactory;
 
     protected $guarded = [];
+
     protected $dates = ['starts_at'];
+
+    protected static function booted()
+    {
+        static::addGlobalScope('orderByRound', function(Builder $builder) {
+            $builder->orderBy('round_number');
+        });
+    }
 
     public function timeDiff()
     {
@@ -41,25 +49,23 @@ class Round extends Model
         return "Ends {$end_diff}";
     }
 
-    public function getCurrentAttribute(): bool
+    public function votes()
+    {
+        return $this->hasMany(Vote::class);
+    }
+
+    public function getCurrentAttribute() : bool
     {
         return $this->game->currentRound()->id === $this->id;
     }
 
-    public function teams()
+    public function start() : bool
     {
-        return $this->belongsToMany(Team::class);
+        return $this->update(['started' => true]);
     }
 
-    public function scopeStarted(Builder $query, bool $is_started = true)
+    public function scopeStarted(Builder $query, bool $is_started = true) : Builder
     {
         return $query->where('started', $is_started);
-    }
-
-    protected static function booted()
-    {
-        static::addGlobalScope('orderByRound', function (Builder $builder) {
-            $builder->orderBy('round_number');
-        });
     }
 }

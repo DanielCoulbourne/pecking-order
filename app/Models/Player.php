@@ -22,23 +22,28 @@ class Player extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function teams()
-    {
-        return $this->belongsToMany(Team::class);
-    }
-
     public function team()
     {
-        if (! $this->game->currentRound()) {
-            return null;
-        }
+        return $this->belongsTo(Team::class);
+    }
 
-        return $this->game->currentRound()->teams()->whereIn('teams.id', $this->teams()->get()->pluck('id'))->first();
+    public function teammates()
+    {
+        return $this->game->players()
+            ->where('team_id', $this->team_id)
+            ->where('id', '!=', $this->id);
+    }
+
+    public function enemies()
+    {
+        return $this->game->players()
+            ->where('team_id', '!=', $this->team_id)
+            ->where('id', '!=', $this->id);
     }
 
     public function targets()
     {
-        return $this->game->players()->whereDoesntHave('teams', fn ($query) => $query->where('teams.id', $this->team()->id))->get();
+        return $this->enemies();
     }
 
     public function votes()
@@ -46,9 +51,24 @@ class Player extends Model
         return $this->hasMany(Vote::class, 'voter_id');
     }
 
-    public function votesFor()
+    public function votesTaken()
     {
         return $this->hasMany(Vote::class, 'target_id');
+    }
+
+    public function votesTakenInRound(Round $round)
+    {
+        return $this->votesTaken()->where('round_id', $round->id)->get();
+    }
+
+    public function castVote(Player $target, Round $round = null)
+    {
+        $round = $round ?? $this->game->currentRound();
+
+        return $this->votes()->create([
+            'target_id' => $target->id,
+            'round_id' => $round->id,
+        ]);
     }
 
     public function getAvailableVotesAttribute()
