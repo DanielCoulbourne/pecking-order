@@ -18,9 +18,14 @@ class Round extends Model
 
     protected static function booted()
     {
-        static::addGlobalScope('orderByRound', function(Builder $builder) {
+        static::addGlobalScope('orderByRound', function (Builder $builder) {
             $builder->orderBy('round_number');
         });
+    }
+
+    public function game()
+    {
+        return $this->belongsTo(Game::class);
     }
 
     public function timeDiff()
@@ -49,9 +54,9 @@ class Round extends Model
         return "Ends {$end_diff}";
     }
 
-    public function votes()
+    public function ballots()
     {
-        return $this->hasMany(Vote::class);
+        return $this->hasMany(Ballot::class);
     }
 
     public function getCurrentAttribute() : bool
@@ -61,6 +66,8 @@ class Round extends Model
 
     public function start() : bool
     {
+        $this->game->players->each->incrementAvailableBallots();
+
         return $this->update(['started' => true]);
     }
 

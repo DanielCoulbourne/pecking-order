@@ -11,12 +11,13 @@ class CreatePlayersTable extends Migration
 {
     public function up()
     {
-        Schema::create('players', function(Blueprint $table) {
+        Schema::create('players', function (Blueprint $table) {
             $table->id();
             $table->string('alias')->nullable();
             $table->foreignIdFor(Game::class);
             $table->foreignIdFor(User::class);
             $table->foreignIdFor(Team::class)->nullable();
+            $table->integer('available_ballots')->default(0);
             $table->timestamps();
         });
     }

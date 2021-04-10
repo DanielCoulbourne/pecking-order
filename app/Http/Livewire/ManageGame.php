@@ -19,7 +19,7 @@ class ManageGame extends Component
 
     public function startRound(int $round_id)
     {
-        Round::find($round_id)->update(['started' => true]);
+        Round::find($round_id)->start();
 
         $this->game->refresh();
     }

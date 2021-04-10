@@ -46,33 +46,60 @@ class Player extends Model
         return $this->enemies();
     }
 
-    public function votes()
+    public function ballots()
     {
-        return $this->hasMany(Vote::class, 'voter_id');
+        return $this->hasMany(Ballot::class, 'player_id');
     }
 
-    public function votesTaken()
+    public function downvotesTaken()
     {
-        return $this->hasMany(Vote::class, 'target_id');
+        return $this->hasMany(Ballot::class, 'downvote_id');
     }
 
-    public function votesTakenInRound(Round $round)
+    public function upvotesTaken()
     {
-        return $this->votesTaken()->where('round_id', $round->id)->get();
+        return $this->hasMany(Ballot::class, 'upvote_id');
     }
 
-    public function castVote(Player $target, Round $round = null)
+    public function downvotesTakenInRound(Round $round)
     {
+        return $this->downvotesTaken()->where('round_id', $round->id)->get();
+    }
+
+    public function upvotesTakenInRound(Round $round)
+    {
+        return $this->upvotesTaken()->where('round_id', $round->id)->get();
+    }
+
+    public function castBallot(Player $upvote, Player $downvote, Round $round = null)
+    {
+        if ($this->available_ballots < 1) {
+            return;
+        }
+
         $round = $round ?? $this->game->currentRound();
 
-        return $this->votes()->create([
-            'target_id' => $target->id,
+        return $this->ballots()->create([
+            'upvote_id' => $upvote->id,
+            'downvote_id' => $downvote->id,
             'round_id' => $round->id,
         ]);
+
+        $this->decrementAvailableBallots();
     }
 
-    public function getAvailableVotesAttribute()
+    public function incrementAvailableBallots()
     {
-        return $this->game->rounds()->started()->count();
+        $this->update(['available_ballots' => $this->available_ballots + 1]);
     }
+
+    public function decrementAvailableBallots()
+    {
+        $this->update(['available_ballots' => $this->available_ballots - 1]);
+    }
+
+    // public function getAvailableVotesAttribute()
+    // {
+    //     return $this->game->rounds()->started()->count();
+    // }
 }
