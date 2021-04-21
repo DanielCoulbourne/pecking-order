@@ -13,23 +13,36 @@ class PlayerAction extends Component
     public Round $round;
     public Player $player;
 
-    public array $targets;
-    public int $new_team;
+    public $upvote;
+    public $downvote;
 
-    public function maxSpendableVotes()
-    {
-        return $this->player->available_votes ?? 4;
-    }
+    protected $rules = [
+        'upvote' => 'integer|required',
+        'downvote' => 'integer|required',
+    ];
 
     public function submit()
     {
-        $this->player->teams()->attach($this->new_team);
+        $this->player->castBallot(
+            Player::find($this->upvote),
+            Player::find($this->downvote),
+            $this->round
+        );
 
-        foreach ($this->targets as $target) {
-            $this->player->votes()->create([
-                'target_id' => $target->id,
-                'round' => $this->round,
-            ]);
-        }
+        $this->reset(['upvote', 'downvote']);
+    }
+
+    public function getTeammatesProperty()
+    {
+        return $this->game->players()
+            ->where('team_id', $this->player->team_id)
+            ->where('id', '!=', $this->player->id)->get();
+    }
+
+    public function getTargetsProperty()
+    {
+        return $this->game->players()
+            ->where('team_id', '!=', $this->player->team_id)
+            ->where('id', '!=', $this->player->id)->get();
     }
 }
