@@ -53,7 +53,8 @@ class BallotTest extends TestCase
         $teammate = Player::factory()->game($game)->onTeam($team)->create();
         $target = Player::factory()->game($game)->onTeam()->create();
 
-        $round->start();
+        $round->start(); // Starting a round gives everyone 1 ballot
+        
         $this->assertEquals(1, $game->currentRound()->round_number);
 
         $this->assertContains($target->id, $voter->targets->pluck('id'));

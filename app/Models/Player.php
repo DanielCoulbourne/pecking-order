@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\StorableEvents\BallotSubmitted;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -79,13 +80,7 @@ class Player extends Model
 
         $round = $round ?? $this->game->currentRound();
 
-        return $this->ballots()->create([
-            'upvote_id' => $upvote->id,
-            'downvote_id' => $downvote->id,
-            'round_id' => $round->id,
-        ]);
-
-        $this->decrementAvailableBallots();
+        event(new BallotSubmitted($this, $upvote, $downvote, $round));
     }
 
     public function incrementAvailableBallots()
