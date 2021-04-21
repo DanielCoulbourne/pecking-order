@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -12,7 +13,20 @@ class Round extends Model
     use HasFactory;
 
     protected $guarded = [];
+
     protected $dates = ['starts_at'];
+
+    protected static function booted()
+    {
+        static::addGlobalScope('orderByRound', function (Builder $builder) {
+            $builder->orderBy('round_number');
+        });
+    }
+
+    public function game()
+    {
+        return $this->belongsTo(Game::class);
+    }
 
     public function timeDiff()
     {
@@ -38,5 +52,27 @@ class Round extends Model
         }
 
         return "Ends {$end_diff}";
+    }
+
+    public function ballots()
+    {
+        return $this->hasMany(Ballot::class);
+    }
+
+    public function getCurrentAttribute() : bool
+    {
+        return $this->game->currentRound()->id === $this->id;
+    }
+
+    public function start() : bool
+    {
+        $this->game->players->each->incrementAvailableBallots();
+
+        return $this->update(['started' => true]);
+    }
+
+    public function scopeStarted(Builder $query, bool $is_started = true) : Builder
+    {
+        return $query->where('started', $is_started);
     }
 }

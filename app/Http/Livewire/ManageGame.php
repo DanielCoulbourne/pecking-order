@@ -3,6 +3,7 @@
 namespace App\Http\Livewire;
 
 use App\Models\Game;
+use App\Models\Round;
 use Livewire\Component;
 
 class ManageGame extends Component
@@ -14,5 +15,12 @@ class ManageGame extends Component
         if (!$this->game->starts_at) {
             return redirect()->route('littlefinger.games.setup', $this->game);
         }
+    }
+
+    public function startRound(int $round_id)
+    {
+        Round::find($round_id)->start();
+
+        $this->game->refresh();
     }
 }
