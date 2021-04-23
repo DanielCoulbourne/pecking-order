@@ -2,7 +2,7 @@
 
 namespace App\Projectors;
 
-
+use App\StorableEvents\BallotSubmitted;
 use Spatie\EventSourcing\EventHandlers\Projectors\Projector;
 
 class UpvoteProjector extends Projector
