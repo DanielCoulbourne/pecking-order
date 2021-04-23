@@ -18,6 +18,7 @@ class CreatePlayersTable extends Migration
             $table->foreignIdFor(User::class);
             $table->foreignIdFor(Team::class)->nullable();
             $table->integer('available_ballots')->default(0);
+            $table->integer('tally')->default(0);
             $table->timestamps();
         });
     }

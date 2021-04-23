@@ -17,12 +17,13 @@ class PlayerFactory extends Factory
         return [
             'user_id' => User::factory(),
             'game_id' => Game::factory(),
+            'tally' => 0,
         ];
     }
 
     public function onTeam(Team $team = null)
     {
-        return $this->state(function($attributes) use ($team) {
+        return $this->state(function ($attributes) use ($team) {
             $team = $team ?? Team::factory()->game(Game::find($attributes['game_id']))->create();
 
             return [
@@ -33,7 +34,7 @@ class PlayerFactory extends Factory
 
     public function game(Game $game)
     {
-        return $this->state(fn($attributes) => [
+        return $this->state(fn ($attributes) => [
             'game_id' => $game->id,
         ]);
     }

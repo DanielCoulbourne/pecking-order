@@ -8,17 +8,17 @@ use Spatie\EventSourcing\EventHandlers\Projectors\Projector;
 
 class AvailableBallotsProjector extends Projector
 {
-    public function onBallotGained(BallotGained $player_gained_ballot)
+    public function onBallotGained(BallotGained $event)
     {
-        $player_gained_ballot->player->update([
-            'available_ballots' => $player_gained_ballot->player->available_ballots++
+        $event->player->update([
+            'available_ballots' => $event->player->available_ballots++,
         ]);
     }
 
-    public function onBallotSubmitted(BallotSubmitted $player_gained_ballot)
+    public function onBallotSubmitted(BallotSubmitted $event)
     {
-        $player_gained_ballot->voter->update([
-            'available_ballots' => $player_gained_ballot->voter->available_ballots--
+        $event->voter->update([
+            'available_ballots' => $event->voter->available_ballots--,
         ]);
     }
 }
