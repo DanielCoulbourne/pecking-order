@@ -92,9 +92,4 @@ class Player extends Model
     {
         $this->update(['available_ballots' => $this->available_ballots - 1]);
     }
-
-    // public function getAvailableVotesAttribute()
-    // {
-    //     return $this->game->rounds()->started()->count();
-    // }
 }

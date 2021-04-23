@@ -7,8 +7,8 @@ use Spatie\EventSourcing\EventHandlers\Projectors\Projector;
 
 class UpvoteProjector extends Projector
 {
-    public function onBallotSubmitted(BallotSubmitted $ballot_submitted)
+    public function onBallotSubmitted(BallotSubmitted $event)
     {
-        $ballot_submitted->upvote_target->update(['tally' => $ballot_submitted->upvote_target->tally++]);
+        $event->upvote_target->update(['tally' => $event->upvote_target->tally++]);
     }
 }
